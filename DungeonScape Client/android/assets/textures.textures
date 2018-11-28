@@ -1,0 +1,50 @@
+//grass
+1 textures/texsheet.png 1 1 32 32
+//dirt
+2 textures/texsheet.png 1 35 32 32
+//water
+3 textures/texsheet.png 137 1 32 32
+//wall
+4 textures/texsheet.png 1 69 32 32
+//bullet
+5 textures/texsheet.png 35 205 32 32
+6 textures/empty_bar_container.png
+7 textures/health_bar.png
+8 textures/mana_bar.png
+//player
+9 textures/texsheet.png 1 205 32 32
+//fireball
+10 textures/texsheet.png 69 205 32 32
+11 textures/bullet.png
+//ghost
+12 textures/texsheet.png 1 239 32 32
+//wall 2
+13 textures/texsheet.png 35 69 32 32
+//tree
+14 textures/texsheet.png 1 103 100 100
+//maple
+15 textures/texsheet.png 103 103 100 100
+//inv box
+16 textures/texsheet.png 1 273 32 32
+//money stack
+17 textures/texsheet.png 35 273 32 32
+//pine
+18 textures/texsheet.png 205 103 100 100
+//tallgrass1?
+19 textures/texsheet.png 103 205 32 32
+//tallgrass2?
+20 textures/texsheet.png 137 205 32 32
+//tallgrass3?
+21 textures/texsheet.png 171 205 32 32
+//flowers
+22 textures/texsheet.png 205 205 32 32
+//bigass tree
+23 textures/texsheet.png 307 1 236 236
+//another tree?
+24 textures/texsheet.png 137 35 32 32
+//gravel
+25 textures/texsheet.png 69 69 32 32
+//crab
+26 textures/texsheet.png 35 239 32 32
+//spider
+27 textures/texsheet.png 69 239 32 32
