@@ -7,15 +7,15 @@ Requires a few of my other projects to be on buildpath:
 
 For Server, API, and Client:
 
-Simple Server Client Framework
+Simple Server Client Framework (sscf.jar)
 
-Simple Packet Framework
+Simple Packet Framework (spf.jar)
 
-Simple User Framework
+Simple User Framework (suf.jar)
 
-ClownvinsUtility
+ClownvinsUtility (clownsutility.jar)
 
-The Client and Server also require API to be on the build path\
+The Client and Server also require API to be on the build path (dsapi.jar)
 
 They are now included automatically as jars, but you can still replace them with your own. You can find the sources for all of them in my repositories.
 
