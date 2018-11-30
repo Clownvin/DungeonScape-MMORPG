@@ -3,7 +3,7 @@ A basic top down 2D Java MMORPG (more of a framework to build one) that uses Lib
 
 ![alt text](https://i.imgur.com/TYpHUpE.png)
 
-Requires a few of my other projects to be on buildpath (they are NOT included automatically in this repository:
+Requires a few of my other projects to be on buildpath:
 
 For Server, API, and Client:
 
@@ -15,7 +15,9 @@ Simple User Framework
 
 ClownvinsUtility
 
-The Client and Server also require API to be on the build path
+The Client and Server also require API to be on the build path\
+
+They are now included automatically as jars, but you can still replace them with your own. You can find the sources for all of them in my repositories.
 
 Some more pictures:
 ![alt text](https://i.imgur.com/bfrrTuW.png)
