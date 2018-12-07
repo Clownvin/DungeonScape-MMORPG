@@ -56,7 +56,6 @@ public class ServerChunk extends Chunk {
 	@Override
 	public void moveEntity(Entity e, Integer x1, Integer y1, Integer x2, Integer y2) {
 		if (x1 == x2 && y1 == y2) {
-			//System.out.println("Wtf is goin on here nigga lol");
 			return;
 		}
 		super.moveEntity(e, x1, y1, x2, y2);
