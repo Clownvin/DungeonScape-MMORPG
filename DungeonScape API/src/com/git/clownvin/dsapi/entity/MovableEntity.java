@@ -34,9 +34,6 @@ public interface MovableEntity extends Entity {
 		float hyp = (float) Math.sqrt((getVelocityX() * getVelocityX()) + (getVelocityY() * getVelocityY()));
 		setVelocityX(getVelocityX() / hyp);
 		setVelocityY(getVelocityY() / hyp);
-		//velocityX /= hyp;
-		//velocityY /= hyp;
-		//System.out.println("hyp: "+hyp+", vx: "+velocityX+", vy: "+velocityY);
 	}
 	
 	public void startMoving();
