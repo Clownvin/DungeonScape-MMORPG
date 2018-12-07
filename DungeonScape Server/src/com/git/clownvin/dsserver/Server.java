@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 
+import javax.swing.JFrame;
+
 import com.git.clownvin.dsapi.config.Config;
 import com.git.clownvin.dsserver.connection.UserConnection;
 import com.git.clownvin.dsserver.entity.character.Characters;
@@ -129,9 +131,10 @@ public class Server extends AbstractServer {
 
 	@Override
 	public void atStart() {
-		// JFrame frame = new JFrame("Close me to kill server!");
-		// frame.setVisible(true);
-		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		JFrame frame = new JFrame("Close me to kill server!");
+		 frame.setVisible(true);
+		 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 frame.setSize(100, 100);
 		idSystem = new IDSystem(200_000);
 		spriteTable = new SpriteTable();
 		firingPatterns = new FiringPatterns();
