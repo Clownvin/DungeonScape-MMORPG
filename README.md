@@ -1,5 +1,6 @@
 # DungeonScape
-A basic top down 2D Java MMORPG (more of a framework to build one) that uses LibGDX for graphics.
+A basic top down 2D Java MMORPG (more of a framework to build one) that uses LibGDX for graphics. 
+Download DungeonScape.zip to try out the game. It has a server folder and a client folder, with runnable jars in each. It also inlcudes a batch file called cmd, which will act as a command line in that directory.
 
 ![alt text](https://i.imgur.com/TYpHUpE.png)
 
