@@ -1,7 +1,5 @@
 package com.git.clownvin.dsapi.packet;
 
-import java.nio.ByteBuffer;
-
 import com.git.clownvin.simplepacketframework.packet.Response;
 
 public class LoginResponse extends Response {
@@ -16,9 +14,8 @@ public class LoginResponse extends Response {
 	private byte result;
 	
 	public LoginResponse(long reqID, byte result) {
-		super(false, combine(ByteBuffer.allocate(8).putLong(reqID).array(), new byte[] {result}), -1);
+		super(reqID, new byte[] {result});
 		this.result = result;
-		this.reqID = reqID;
 	}
 
 	public LoginResponse(boolean construct, byte[] bytes, int length) {

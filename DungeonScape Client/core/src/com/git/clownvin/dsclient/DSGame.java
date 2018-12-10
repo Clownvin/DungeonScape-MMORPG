@@ -6,17 +6,43 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.git.clownvin.dsapi.packet.CharacterPacket;
+import com.git.clownvin.dsapi.packet.CharacterStatusPacket;
+import com.git.clownvin.dsapi.packet.ChunkPacket;
+import com.git.clownvin.dsapi.packet.InventoryPacket;
+import com.git.clownvin.dsapi.packet.MMOPacketSystem;
+import com.git.clownvin.dsapi.packet.MessagePacket;
+import com.git.clownvin.dsapi.packet.MoveCharacterPacket;
+import com.git.clownvin.dsapi.packet.ObjectPacket;
+import com.git.clownvin.dsapi.packet.ProjectilePacket;
+import com.git.clownvin.dsapi.packet.RemoveCharacterPacket;
+import com.git.clownvin.dsapi.packet.RemoveObjectPacket;
+import com.git.clownvin.dsapi.packet.RemoveProjectilePacket;
+import com.git.clownvin.dsapi.packet.SelfPacket;
+import com.git.clownvin.dsapi.packet.ServerTimePacket;
 import com.git.clownvin.dsclient.entity.character.Characters;
 import com.git.clownvin.dsclient.entity.object.Objects;
 import com.git.clownvin.dsclient.entity.projectile.Projectiles;
 import com.git.clownvin.dsclient.net.Client;
-import com.git.clownvin.dsclient.net.packet.PacketHandler;
+import com.git.clownvin.dsclient.net.packet.CharacterPacketHandler;
+import com.git.clownvin.dsclient.net.packet.CharacterStatusPacketHandler;
+import com.git.clownvin.dsclient.net.packet.ChunkPacketHandler;
+import com.git.clownvin.dsclient.net.packet.InventoryPacketHandler;
+import com.git.clownvin.dsclient.net.packet.MessagePacketHandler;
+import com.git.clownvin.dsclient.net.packet.MoveCharacterPacketHandler;
+import com.git.clownvin.dsclient.net.packet.ObjectPacketHandler;
+import com.git.clownvin.dsclient.net.packet.ProjectilePacketHandler;
+import com.git.clownvin.dsclient.net.packet.RemoveCharacterPacketHandler;
+import com.git.clownvin.dsclient.net.packet.RemoveObjectPacketHandler;
+import com.git.clownvin.dsclient.net.packet.RemoveProjectilePacketHandler;
+import com.git.clownvin.dsclient.net.packet.SelfPacketHandler;
+import com.git.clownvin.dsclient.net.packet.ServerTimePacketHandler;
 import com.git.clownvin.dsclient.screen.GameScreen;
 import com.git.clownvin.dsclient.screen.LoadingScreen;
 import com.git.clownvin.dsclient.screen.LoginScreen;
 import com.git.clownvin.dsclient.texture.Textures;
 import com.git.clownvin.dsclient.world.Chunks;
-import com.git.clownvin.simplepacketframework.packet.Packets;
+import com.git.clownvin.simplepacketframework.packet.PacketSystem;
 
 public class DSGame extends Game {
 	public static final int V_WIDTH = 640;
@@ -32,6 +58,7 @@ public class DSGame extends Game {
 	private GameScreen gameScreen;
 	private int selfID = -1;
 	private long serverTime = 0L;
+	private PacketSystem packetSystem;
 	
 	public Client getClient() {
 		return client;
@@ -74,7 +101,20 @@ public class DSGame extends Game {
 	}
 	
 	public void setupPackets() {
-		Packets.setPacketHandler(new PacketHandler(this));
+		//PacketSystem.setPacketHandler(new PacketHandler(this));
+		packetSystem.setPacketHandler(CharacterPacket.class, new CharacterPacketHandler(this));
+		packetSystem.setPacketHandler(CharacterStatusPacket.class, new CharacterStatusPacketHandler(this));
+		packetSystem.setPacketHandler(ChunkPacket.class, new ChunkPacketHandler(this));
+		packetSystem.setPacketHandler(InventoryPacket.class, new InventoryPacketHandler(this));
+		packetSystem.setPacketHandler(MessagePacket.class, new MessagePacketHandler(this));
+		packetSystem.setPacketHandler(MoveCharacterPacket.class, new MoveCharacterPacketHandler(this));
+		packetSystem.setPacketHandler(ObjectPacket.class, new ObjectPacketHandler(this));
+		packetSystem.setPacketHandler(ProjectilePacket.class, new ProjectilePacketHandler(this));
+		packetSystem.setPacketHandler(RemoveCharacterPacket.class, new RemoveCharacterPacketHandler(this));
+		packetSystem.setPacketHandler(RemoveObjectPacket.class, new RemoveObjectPacketHandler(this));
+		packetSystem.setPacketHandler(RemoveProjectilePacket.class, new RemoveProjectilePacketHandler(this));
+		packetSystem.setPacketHandler(SelfPacket.class, new SelfPacketHandler(this));
+		packetSystem.setPacketHandler(ServerTimePacket.class, new ServerTimePacketHandler(this));
 	}
 	
 	public GameScreen getGameScreen() {
@@ -123,9 +163,10 @@ public class DSGame extends Game {
 			loadingScreen.setStatusMessage("Loading characters...");
 			break;
 		case 0:
+			packetSystem = new MMOPacketSystem();
 			setupPackets();
 			try {
-				client = new Client("localhost", 6942);
+				client = new Client("localhost", 6942, packetSystem);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);

@@ -5,12 +5,13 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import com.git.clownvin.simplepacketframework.connection.Connection;
+import com.git.clownvin.simplepacketframework.packet.PacketSystem;
 import com.git.clownvin.simplescframework.AbstractClient;
 
 public class Client extends AbstractClient<Connection> {
 
-	public Client(final String address, final int ip) throws UnknownHostException, IOException {
-		super(new Connection(new Socket(address, ip)));
+	public Client(final String address, final int ip, final PacketSystem packetSystem) throws UnknownHostException, IOException {
+		super(new Connection(new Socket(address, ip), packetSystem));
 	}
 
 	@Override

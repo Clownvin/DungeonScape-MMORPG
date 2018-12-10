@@ -1,13 +1,21 @@
 package com.git.clownvin.dsserver;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
-
-import javax.swing.JFrame;
+import java.util.function.Consumer;
 
 import com.git.clownvin.dsapi.config.Config;
+import com.git.clownvin.dsapi.packet.ActionPacket;
+import com.git.clownvin.dsapi.packet.ChunkRequest;
+import com.git.clownvin.dsapi.packet.ClientStatusPacket;
+import com.git.clownvin.dsapi.packet.LoginRequest;
+import com.git.clownvin.dsapi.packet.MMOPacketSystem;
+import com.git.clownvin.dsapi.packet.MessagePacket;
+import com.git.clownvin.dsapi.packet.VelocityPacket;
 import com.git.clownvin.dsserver.connection.UserConnection;
 import com.git.clownvin.dsserver.entity.character.Characters;
 import com.git.clownvin.dsserver.entity.object.Objects;
@@ -15,16 +23,22 @@ import com.git.clownvin.dsserver.entity.projectile.Projectiles;
 import com.git.clownvin.dsserver.entity.projectile.patterns.FiringPattern;
 import com.git.clownvin.dsserver.entity.projectile.patterns.FiringPatterns;
 import com.git.clownvin.dsserver.item.Items;
-import com.git.clownvin.dsserver.packets.PacketHandler;
+import com.git.clownvin.dsserver.packets.ActionPacketHandler;
+import com.git.clownvin.dsserver.packets.ChunkRequestHandler;
+import com.git.clownvin.dsserver.packets.ClientStatusPacketHandler;
+import com.git.clownvin.dsserver.packets.LoginRequestHandler;
+import com.git.clownvin.dsserver.packets.MessagePacketHandler;
+import com.git.clownvin.dsserver.packets.VelocityPacketHandler;
 import com.git.clownvin.dsserver.user.Profile;
 import com.git.clownvin.dsserver.util.IDSystem;
 import com.git.clownvin.dsserver.util.IDSystem.ID;
 import com.git.clownvin.dsserver.util.SpriteTable;
 import com.git.clownvin.dsserver.world.Instances;
 import com.git.clownvin.dsserver.world.Maps;
-import com.git.clownvin.simplepacketframework.packet.Packets;
+import com.git.clownvin.simplepacketframework.packet.PacketSystem;
 import com.git.clownvin.simplescframework.AbstractServer;
-import com.git.clownvin.simplescframework.connection.ConnectionAcceptor;
+import com.git.clownvin.simplescframework.connection.AbstractConnection;
+import com.git.clownvin.simplescframework.connection.ConnectionFactory;
 import com.git.clownvin.simpleuserframework.UserDatabase;
 
 public class Server extends AbstractServer {
@@ -33,7 +47,6 @@ public class Server extends AbstractServer {
 	private static DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 	private static UserDatabase<Profile, UserConnection> users = new UserDatabase<>(Profile.class);
 	private static LinkedList<UserConnection> connectionList = new LinkedList<>();
-	private static PacketHandler packetHandler;
 	private static Characters characters;
 	private static Objects objects;
 	private static Projectiles projectiles;
@@ -41,6 +54,7 @@ public class Server extends AbstractServer {
 	private static FiringPatterns firingPatterns;
 	private static IDSystem idSystem;
 	private static volatile long serverTime = 0L;
+	private static PacketSystem packetSystem = new MMOPacketSystem();
 //	private static volatile int nextID = 0;
 
 //	public static int getNextID() {
@@ -92,22 +106,22 @@ public class Server extends AbstractServer {
 	public static Date getServerTimeAsDate() {
 		return new Date(getServerTime());
 	}
+	
+	private static void setupPackets() {
+		packetSystem.setPacketHandler(ActionPacket.class, new ActionPacketHandler());
+		packetSystem.setPacketHandler(ChunkRequest.class, new ChunkRequestHandler());
+		packetSystem.setPacketHandler(ClientStatusPacket.class, new ClientStatusPacketHandler());
+		packetSystem.setPacketHandler(LoginRequest.class, new LoginRequestHandler());
+		packetSystem.setPacketHandler(MessagePacket.class, new MessagePacketHandler());
+		packetSystem.setPacketHandler(VelocityPacket.class, new VelocityPacketHandler());
+	}
 
 	public static void main(String[] args) {
 		// for (int i = 0; i < 100; i++) {
 		// generateMap(720, 720, "sakt");
 		// }
 		startTime = System.currentTimeMillis();
-		packetHandler = new PacketHandler();
-		Packets.setPacketHandler(packetHandler);
-		ConnectionAcceptor.setConnectionClass(UserConnection.class);
-		ConnectionAcceptor.setOnConnectConsumer((c, p) -> {
-			synchronized (connectionList) {
-				UserConnection connection = (UserConnection) c;
-				connectionList.add(connection);
-				System.out.println(connection + ": Added connection");
-			}
-		});
+		setupPackets();
 		// Packets.setDebug(true);
 		server = new Server();
 		server.start();
@@ -117,7 +131,7 @@ public class Server extends AbstractServer {
 		return serverTime;
 	}
 
-	private volatile long tickConsumption = 0L;
+	private volatile long tickCumulative = 0L;
 
 	private static volatile long tickCount = 0L;
 
@@ -131,10 +145,6 @@ public class Server extends AbstractServer {
 
 	@Override
 	public void atStart() {
-		JFrame frame = new JFrame("Close me to kill server!");
-		 frame.setVisible(true);
-		 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		 frame.setSize(100, 100);
 		idSystem = new IDSystem(200_000);
 		spriteTable = new SpriteTable();
 		firingPatterns = new FiringPatterns();
@@ -193,7 +203,7 @@ public class Server extends AbstractServer {
 			e.printStackTrace();
 		}
 		projectileTime += System.currentTimeMillis() - start2;
-		tickConsumption += System.currentTimeMillis() - start;
+		tickCumulative += System.currentTimeMillis() - start;
 		tickCount++;
 		if (System.currentTimeMillis() - lastInfo >= 60000) {
 			System.out.println("------------Info------------");
@@ -202,18 +212,18 @@ public class Server extends AbstractServer {
 			System.out
 					.println("Tick Consumption: "
 							+ String.format("%08.4f",
-									((tickConsumption / (float) (System.currentTimeMillis() - lastInfo)) * 100.0f))
+									((tickCumulative / (float) (System.currentTimeMillis() - lastInfo)) * 100.0f))
 							+ "%");
 			System.out.println("Char Consumption: "
-					+ String.format("%08.4f", ((characterTime / (float) tickConsumption) * 100.0f)) + "%");
+					+ String.format("%08.4f", ((characterTime / (float) tickCumulative) * 100.0f)) + "%");
 			System.out.println("Proj Consumption: "
-					+ String.format("%08.4f", ((projectileTime / (float) tickConsumption) * 100.0f)) + "%");
+					+ String.format("%08.4f", ((projectileTime / (float) tickCumulative) * 100.0f)) + "%");
 			System.out.println("Inst Consumption: "
-					+ String.format("%08.4f", ((instanceTime / (float) tickConsumption) * 100.0f)) + "%");
+					+ String.format("%08.4f", ((instanceTime / (float) tickCumulative) * 100.0f)) + "%");
 			System.out.println("Projectiles: " + projectiles.getCount());
 			System.out.println("Characters: " + characters.getCount());
 			System.out.println("----------------------------");
-			tickConsumption = 0L;
+			tickCumulative = 0L;
 			characterTime = 0L;
 			projectileTime = 0L;
 			instanceTime = 0L;
@@ -225,6 +235,29 @@ public class Server extends AbstractServer {
 			Thread.sleep(toSleep);
 		// lse
 		// System.out.println(-toSleep+" ms behind.");
+	}
+
+	@Override
+	protected ConnectionFactory getConnectionFactory(int port) {
+		return new ConnectionFactory() {
+
+			@Override
+			public AbstractConnection createConnection(Socket socket) throws IOException {
+				return new UserConnection(socket, packetSystem);
+			}
+			
+		};
+	}
+
+	@Override
+	protected Consumer<AbstractConnection> getConnectionConsumer(int port) {
+		return (c) -> {
+			synchronized (connectionList) {
+				UserConnection connection = (UserConnection) c;
+				connectionList.add(connection);
+				System.out.println(connection + ": Added connection");
+			}
+		};
 	}
 
 }

@@ -5,7 +5,6 @@ import java.net.Socket;
 
 import com.git.clownvin.dsapi.config.Config;
 import com.git.clownvin.dsapi.packet.CharacterPacket;
-import com.git.clownvin.dsapi.packet.InventoryPacket;
 import com.git.clownvin.dsapi.packet.SelfPacket;
 import com.git.clownvin.dsserver.Server;
 import com.git.clownvin.dsserver.entity.character.PlayerCharacter;
@@ -13,6 +12,7 @@ import com.git.clownvin.dsserver.entity.projectile.patterns.ConePattern;
 import com.git.clownvin.dsserver.item.Inventory;
 import com.git.clownvin.dsserver.user.Profile;
 import com.git.clownvin.simplepacketframework.connection.Connection;
+import com.git.clownvin.simplepacketframework.packet.PacketSystem;
 import com.git.clownvin.simpleuserframework.UserContainer;
 
 public class UserConnection extends Connection implements UserContainer<Profile> {
@@ -20,8 +20,8 @@ public class UserConnection extends Connection implements UserContainer<Profile>
 	private volatile Profile profile = null;
 	private volatile PlayerCharacter character = null;
 
-	public UserConnection(Socket socket) throws IOException {
-		super(socket);
+	public UserConnection(Socket socket, PacketSystem packetSystem) throws IOException {
+		super(socket, packetSystem);
 	}
 	
 	public PlayerCharacter getCharacter() {
